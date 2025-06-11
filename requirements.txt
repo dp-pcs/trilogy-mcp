@@ -1,0 +1,4 @@
+mcp[cli]
+feedparser
+beautifulsoup4
+requests
