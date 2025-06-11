@@ -1,1 +1,2 @@
 # trilogy-mcp
+# small change
