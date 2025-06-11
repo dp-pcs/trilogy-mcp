@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 from datetime import datetime, timedelta
-from typing import List, Optional, Dict
+from typing import Optional, Any
 
 import feedparser
 import requests
@@ -14,10 +14,10 @@ from mcp.server.fastmcp.server import FastMCP, Context
 FEED_URL = "https://trilogyai.substack.com/feed"
 
 # Simple in-memory cache for feed data
-_CACHE: dict[str, any] = {"posts": None, "fetched": None}
+_CACHE: dict[str, Any] = {"posts": None, "fetched": None}
 
 
-def fetch_posts(force: bool = False) -> List[Dict]:
+def fetch_posts(force: bool = False) -> list[dict]:
     """Fetch and parse Trilogy AI Substack feed."""
     now = datetime.utcnow()
     if (
@@ -47,14 +47,14 @@ def fetch_posts(force: bool = False) -> List[Dict]:
     return list(_CACHE["posts"])
 
 
-def get_post_by_id(post_id: str) -> Optional[Dict]:
+def get_post_by_id(post_id: str) -> Optional[dict]:
     for post in fetch_posts():
         if post["id"] == post_id or post["link"].endswith(post_id):
             return post
     return None
 
 
-def get_post_by_title(title: str) -> Optional[Dict]:
+def get_post_by_title(title: str) -> Optional[dict]:
     title_lower = title.lower()
     for post in fetch_posts():
         if post["title"].lower() == title_lower:
@@ -69,12 +69,12 @@ server = FastMCP(
 
 
 @server.resource("trilogy://publications", description="All Trilogy AI Substack posts as JSON")
-def trilogy_publications() -> List[Dict]:
+def trilogy_publications() -> list[dict]:
     return fetch_posts()
 
 
 @server.resource("trilogy://stats", description="Statistical overview of Trilogy AI Substack")
-def trilogy_stats() -> Dict:
+def trilogy_stats() -> dict:
     posts = fetch_posts()
     authors = {}
     now = datetime.utcnow()
@@ -99,7 +99,7 @@ def trilogy_stats() -> Dict:
 
 
 @server.tool()
-def list_trilogy_posts(max_posts: int = 5, days: int = 30) -> List[Dict]:
+def list_trilogy_posts(max_posts: int = 5, days: int = 30) -> list[dict]:
     """List recent Trilogy AI posts."""
     posts = fetch_posts()
     cutoff = datetime.utcnow() - timedelta(days=days)
@@ -137,7 +137,7 @@ def read_trilogy_article(
 
 
 @server.tool()
-def search_trilogy_articles(query: str) -> List[Dict]:
+def search_trilogy_articles(query: str) -> list[dict]:
     """Search Trilogy AI articles by title or summary."""
     query_lower = query.lower()
     results = [
@@ -152,7 +152,7 @@ def search_trilogy_articles(query: str) -> List[Dict]:
 def analyze_trilogy_content(
     post_id: Optional[str] = None,
     post_title: Optional[str] = None,
-) -> Dict:
+) -> dict:
     """Return basic content statistics for an article."""
     text = read_trilogy_article(post_id=post_id, post_title=post_title)
     words = re.findall(r"\w+", text)
